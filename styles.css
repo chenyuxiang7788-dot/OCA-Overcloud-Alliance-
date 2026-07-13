@@ -8,7 +8,7 @@
   align-items: center;
   gap: 9px;
   margin: 0 0 8px;
-  color: #ada0f5;
+  color: #372697;
 }
 
 .oca-livery-list h3 img {
@@ -87,8 +87,8 @@
 }
 
 .oca-subtitle {
-  font-size: 17px;            /* 默认可能只有 10px 或 12px，调大到 14px */
-  color: #a0c0e0;             /* 给它一个比标题稍暗的淡蓝色，增加层次感 */
+  font-size: 30px;            /* 默认可能只有 10px 或 12px，调大到 14px */
+  color: #71a6db;             /* 给它一个比标题稍暗的淡蓝色，增加层次感 */
   font-weight: 500;           /* 稍微增加一点粗度，不再细得看不见 */
   margin-top: -5px;           /* 向上移一点，紧贴标题 */
   margin-bottom: 15px;        /* 底部留点空间，和下面的列表拉开距离 */
