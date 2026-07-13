@@ -11,7 +11,7 @@
 
   // 托管到 GitHub 后，把下面地址换成你的 raw 链接，例如：
   // https://raw.githubusercontent.com/你的用户名/oca-livery-selector/main/alliance.json
-  const BASE_URL = 'https://cdn.jsdelivr.net/gh/chenyuxiang7788-dot/OCA-Overcloud-Alliance-@main';
+  const BASE_URL = 'https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main';
   const ALLIANCE_JSON_URL = `${BASE_URL}/alliance.json`;
   const LOGO_URL = `${BASE_URL}/assets/oca-logo.svg`;
   const STYLES_URL = `${BASE_URL}/styles.css`;
