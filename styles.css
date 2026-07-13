@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap');
+
 .oca-livery-list {
   min-width: 280px;
   max-width: 360px;
 }
 
 .oca-livery-list h3 {
+  font-family: 'Rajdhani', sans-serif;
   display: flex;
   align-items: center;
   gap: 9px;
