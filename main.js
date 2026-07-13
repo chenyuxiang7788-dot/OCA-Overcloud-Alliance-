@@ -2,7 +2,7 @@
  * OCA Livery Selector — 云上联盟 (Overcloud Alliance)
  * 轻量涂装选择器，仅加载联盟自有涂装。
  *
- * 使用前请将 ALLIANCE_JSON_URL 改成你托管 alliance.json 的地址。
+ * 
  */
 (function () {
   'use strict';
@@ -290,7 +290,7 @@
   init().catch((err) => {
     console.error('[OCA Livery] 初始化失败：', err);
     alert(
-      '云上联盟涂装加载失败。\n请检查 alliance.json 地址是否正确，或稍后重试。'
+      '云上联盟涂装加载失败。\n请稍后重试。'
     );
   });
 })();

@@ -12,12 +12,12 @@
       "labels": ["Specular shader","Texture"],
       "liveries": [
         {
-          "name": "OCA 标准涂装 - B-OCA01",
           "texture": [
             "/models/aircraft/premium/a350/specular.jpg",
             "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/a350-900.png"
           ],
-          "credits": "Overcloud Alliance"
+          "credits": "Overcloud Alliance",
+          "name": "OCA标准涂装 - B-OCA01"
         }
       ]
     }
