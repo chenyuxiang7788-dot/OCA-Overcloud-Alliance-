@@ -87,7 +87,7 @@
 }
 
 .oca-subtitle {
-  font-size: 14px;            /* 默认可能只有 10px 或 12px，调大到 14px */
+  font-size: 17px;            /* 默认可能只有 10px 或 12px，调大到 14px */
   color: #a0c0e0;             /* 给它一个比标题稍暗的淡蓝色，增加层次感 */
   font-weight: 500;           /* 稍微增加一点粗度，不再细得看不见 */
   margin-top: -5px;           /* 向上移一点，紧贴标题 */
