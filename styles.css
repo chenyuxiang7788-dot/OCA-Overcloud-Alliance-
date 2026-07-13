@@ -1,0 +1,87 @@
+.oca-livery-list {
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.oca-livery-list h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  color: #e8f4ff;
+}
+
+.oca-livery-list h3 img {
+  height: 28px;
+  width: auto;
+}
+
+.oca-livery-list .oca-subtitle {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: #9eb8d4;
+}
+
+.oca-livery-list .oca-search {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#ocaliverylist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.oca-livery-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background: rgba(74, 144, 217, 0.12);
+  border: 1px solid rgba(126, 200, 255, 0.18);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.oca-livery-item:hover {
+  background: rgba(74, 144, 217, 0.22);
+  border-color: rgba(126, 200, 255, 0.35);
+}
+
+.oca-livery-item .oca-livery-name {
+  font-weight: 600;
+  color: #f4f9ff;
+}
+
+.oca-livery-item .oca-livery-credits {
+  font-size: 11px;
+  color: #9eb8d4;
+}
+
+.oca-empty,
+.oca-unsupported {
+  padding: 14px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #b8c9dc;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+#ocabutton img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+[data-aircraft] .oca-aircraft-badge {
+  height: 22px;
+  width: auto;
+  margin-left: 12px;
+  vertical-align: middle;
+}
