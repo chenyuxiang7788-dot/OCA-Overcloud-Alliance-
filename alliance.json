@@ -7,9 +7,9 @@
   "aircrafts": {
     "24": {
       "name": "Airbus a350-900",
-      "index": [0,0,0,0,0,0,0,0,0],
-      "parts": [0,18,20,21,22,23,24,25,34],
-      "labels": ["Texture"],
+      "index": [2,3],
+      "parts": [0,0],
+      "labels": ["Specular shader","Texture"],
       "liveries": [
         {
           "name": "OCA 标准涂装 - B-OCA01",
