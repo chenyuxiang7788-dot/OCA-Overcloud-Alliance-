@@ -37,8 +37,8 @@
     return el;
   }
 
-  function appendNewChild(parent, tag, attrs = {}) {
-    const el = createTag(tag, attrs);
+  function appendNewChild(parent, tag, attrs = {},text) {
+    const el = createTag(tag, attrs,text);
     parent.appendChild(el);
     return el;
   }
