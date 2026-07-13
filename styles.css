@@ -6,9 +6,9 @@
 .oca-livery-list h3 {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   margin: 0 0 8px;
-  color: #000000;
+  color: #ada0f5;
 }
 
 .oca-livery-list h3 img {
@@ -59,7 +59,7 @@
 }
 
 .oca-livery-item .oca-livery-credits {
-  font-size: 11px;
+  font-size: 12px;
   color: #2b72bd;
 }
 
