@@ -5,21 +5,20 @@
   "color": "#4A90D9",
   "bgcolor": "#1B2838",
   "aircrafts": {
-    "239": {
-      "name": "Airbus a350-900",
-      "index": [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      "parts": [0, 18, 20, 21, 22, 23, 24, 25, 34],
-      "labels": ["Texture"],
+    "编号": {
+      "index": [数值],
+      "parts": [数值],
+      "labels": [未知],
       "liveries": [
         {
-          "name": "OCA 标准涂装 - B-OCA01",
           "texture": [
-            "REPLACE_WITH_YOUR_TEXTURE_URL"
+            "URL？",
           ],
-          "credits": "Overcloud Alliance",
-          "disabled": true
+          "credits": "名字",
+          "name": "名字"
         }
-      ]
+      ],
+      "name":"飞机名"
     }
   }
 }

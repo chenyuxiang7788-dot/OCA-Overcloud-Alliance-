@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         GeoFS 云上联盟涂装 (OCA Livery Selector)
-// @namespace    https://github.com/chenyuxiang7788-dot/oca-livery-selector
+// @namespace    https://github.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-
 // @version      1.0.0
 // @description  云上联盟 (Overcloud Alliance) 专属涂装选择器
 // @author       Overcloud Alliance
 // @match        https://geo-fs.com/geofs.php*
 // @match        https://*.geo-fs.com/geofs.php*
-// @icon         https://raw.githubusercontent.com/chenyuxiang7788-dot/oca-livery-selector/main/assets/oca-logo.svg
+// @icon         https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/asstets/oca-logo.svg
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
@@ -15,7 +15,7 @@
   'use strict';
 
   const MAIN_JS_URL =
-    'https://raw.githubusercontent.com/chenyuxiang7788-dot/oca-livery-selector/main/main.js';
+    'https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/main.js';
 
   fetch(MAIN_JS_URL)
     .then((res) => {
