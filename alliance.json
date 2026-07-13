@@ -14,7 +14,7 @@
         {
           "name": "OCA 标准涂装 - B-OCA01",
           "texture": [
-            "https://cdn.jsdelivr.net/gh/chenyuxiang7788-dot/OCA-Overcloud-Alliance-@main/livery/a350-900.png"
+            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/a350-900.png"
           ],
           "credits": "Overcloud Alliance"
         }
