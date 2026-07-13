@@ -10,7 +10,7 @@
       "index": [2,3],
       "parts": [0,0],
       "labels": ["Specular shader","Texture"],
-      "liveries": [
+      "livery": [
         {
           "texture": [
             "/models/aircraft/premium/a350/specular.jpg",
