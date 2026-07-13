@@ -6,7 +6,6 @@
   "bgcolor": "#1B2838",
   "aircrafts": {
     "24": {
-      "name": "Airbus a350-900",
       "index": [2,3],
       "parts": [0,0],
       "labels": ["Specular shader","Texture"],
@@ -19,7 +18,8 @@
           "credits": "Overcloud Alliance",
           "name": "OCA标准涂装 - B-OCA01"
         }
-      ]
+      ],
+      "name":"Airbus a350-900"
     }
   }
 }
