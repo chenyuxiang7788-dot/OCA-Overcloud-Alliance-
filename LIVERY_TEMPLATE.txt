@@ -16,6 +16,7 @@
           ],
           "credits": "名字",
           "name": "名字"
+          "disabled": true/false
         }
       ],
       "name":"飞机名"

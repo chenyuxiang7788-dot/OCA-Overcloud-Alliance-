@@ -13,16 +13,16 @@
         {
           "texture": [
             "/models/aircraft/premium/a350/specular.jpg",
-            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/a350-900.png"
+            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/COA.png"
           ],
           "credits": "Aviation.Nuo",
           "name": "COA - 大白机",
-          "disabled": true
+          "disabled": false
         },
         {
           "texture": [
             "/models/aircraft/premium/a350/specular.jpg",
-            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/A350-900/OH-OCN01.png"
+            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/A350-900（24）/OH-OCN01.png"
           ],
           "credits": "Aviation.Nuo",
           "name": "OH-OCN01 - 云极航空（普）",
