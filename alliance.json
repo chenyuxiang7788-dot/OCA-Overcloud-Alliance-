@@ -26,7 +26,7 @@
           ],
           "credits": "Aviation.Nuo",
           "name": "OH-OCN01 - 云极航空（普）",
-          "disabled": true
+          "disabled": false
         }
       ],
       "name":"Airbus a350-900"
