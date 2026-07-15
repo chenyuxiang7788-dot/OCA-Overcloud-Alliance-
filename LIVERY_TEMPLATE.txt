@@ -9,6 +9,12 @@
       "index": [数值],
       "parts": [数值],
       "labels": [未知],
+      "mp":[
+        {
+          "textureIndex":数值,
+          "modelIndex":数值
+        }
+      ],
       "liveries": [
         {
           "texture": [

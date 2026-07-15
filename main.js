@@ -7,7 +7,8 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.2.0';
+  const MP_POLL_MS = 5000;
 
   // 托管到 GitHub 后，把下面地址换成你的 raw 链接，例如：
   // https://raw.githubusercontent.com/你的用户名/oca-livery-selector/main/alliance.json
@@ -18,6 +19,9 @@
 
   const alliance = { aircrafts: {} };
   const origHTMLs = {};
+  const remoteLiveryState = new Map();
+  const resizedTextureCache = new Map();
+  let multiplayerUpdateRunning = false;
   const LOG_STYLE = 'white-space:nowrap;display:inline;color:';
   const log = (msg, type = 'log') =>
     console[type](
@@ -77,25 +81,465 @@
     }
   }
 
-  function applyLivery(livery, airplane) {
-    const textures = airplane.liveries[0].texture;
-    const sameTexture =
-      textures.length > 1 &&
-      textures.every((t) => t === textures[0]);
+  function normalizeTextureList(livery, airplane) {
+  const defaultTextures = airplane.liveries?.[0]?.texture || [];
+  const selectedTextures = livery.texture || [];
 
-    if (sameTexture || textures.length === 1) {
-      const url = livery.texture[0];
-      loadLivery(
-        Array(textures.length).fill(url),
-        airplane.index,
-        airplane.parts,
-        livery.materials
-      );
-      return;
+  const defaultUsesOneTexture =
+    defaultTextures.length > 1 &&
+    defaultTextures.every((texture) => texture === defaultTextures[0]);
+
+  if (
+    selectedTextures.length === 1 &&
+    (defaultUsesOneTexture || defaultTextures.length === 1)
+  ) {
+    return Array(Math.max(defaultTextures.length, 1)).fill(
+      selectedTextures[0]
+    );
+  }
+
+  return selectedTextures;
+}
+
+function applyLivery(livery, airplane) {
+  loadLivery(
+    normalizeTextureList(livery, airplane),
+    airplane.index,
+    airplane.parts,
+    livery.materials
+  );
+}
+
+function broadcastLivery(liveryIndex) {
+  const instance = geofs.aircraft?.instance;
+  if (!instance) return;
+
+  instance.liveryId = {
+    url: ALLIANCE_JSON_URL,
+
+    // 广播发送者自己的机型 ID
+    aircraft: String(instance.id),
+
+    // 该机型 liveries 数组中的真实位置
+    idx: liveryIndex,
+
+    // OCA 多人协议版本
+    oca: 2
+  };
+}
+
+/**
+ * 检查远程玩家发送的涂装信息。
+ *
+ * 只接受 OCA 自己的 alliance.json 地址，
+ * 不加载陌生玩家提供的其他 JSON。
+ */
+function parseOcaSignal(currentLivery, remoteAircraftId) {
+  if (!currentLivery || typeof currentLivery !== 'object') {
+    return null;
+  }
+
+  if (currentLivery.url !== ALLIANCE_JSON_URL) {
+    return null;
+  }
+
+  const aircraftId = String(remoteAircraftId ?? '');
+  const idx = Number(currentLivery.idx);
+
+  if (!aircraftId) return null;
+  if (!Number.isInteger(idx) || idx < 0) return null;
+
+  /*
+   * 新版会广播 aircraft。
+   * 如果广播中的机型与 GeoFS 远程玩家机型不一致，
+   * 说明可能刚刚换飞机，暂时不应用旧涂装。
+   */
+  if (
+    currentLivery.aircraft !== undefined &&
+    String(currentLivery.aircraft) !== aircraftId
+  ) {
+    return null;
+  }
+
+  return {
+    aircraftId,
+    idx
+  };
+}
+
+/**
+ * 获取该机型的多人纹理映射。
+ *
+ * 正式机型建议在 alliance.json 中明确填写 mp。
+ * 没填写时暂时尝试使用本地 index。
+ */
+function getMultiplayerMappings(airplane) {
+  if (Array.isArray(airplane.mp) && airplane.mp.length) {
+    return airplane.mp;
+  }
+
+  if (Array.isArray(airplane.index)) {
+    return airplane.index.map((modelIndex, textureIndex) => ({
+      textureIndex,
+      modelIndex
+    }));
+  }
+
+  return [];
+}
+
+function getTextureDimensions(textureMeta) {
+  const width = Number(
+    textureMeta?._width || textureMeta?.width
+  );
+
+  const height = Number(
+    textureMeta?._height || textureMeta?.height
+  );
+
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return null;
+  }
+
+  return {
+    width,
+    height
+  };
+}
+
+/**
+ * 将涂装图片转换成远程模型原纹理的尺寸。
+ */
+async function prepareRemoteTexture(url, textureMeta) {
+  const dimensions = getTextureDimensions(textureMeta);
+
+  // 无法读取尺寸时，直接使用原始 URL
+  if (!dimensions) {
+    return url;
+  }
+
+  const cacheKey =
+    `${url}|${dimensions.width}|${dimensions.height}`;
+
+  if (resizedTextureCache.has(cacheKey)) {
+    return resizedTextureCache.get(cacheKey);
+  }
+
+  const promise = (async () => {
+    const image = await Cesium.Resource.fetchImage({
+      url
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('无法创建 Canvas');
     }
 
-    loadLivery(livery.texture, airplane.index, airplane.parts, livery.materials);
+    context.drawImage(
+      image,
+      0,
+      0,
+      dimensions.width,
+      dimensions.height
+    );
+
+    return canvas.toDataURL('image/png');
+  })();
+
+  resizedTextureCache.set(cacheKey, promise);
+
+  try {
+    return await promise;
+  } catch (error) {
+    resizedTextureCache.delete(cacheKey);
+    throw error;
   }
+}
+
+/**
+ * 替换远程玩家飞机的纹理。
+ */
+function changeRemoteTexture(model, textureUrl, modelIndex) {
+  if (!model?._model) {
+    throw new Error('远程飞机模型尚未加载');
+  }
+
+  if (geofs.version == 2.9) {
+    geofs.api.Model.prototype.changeTexture(
+      textureUrl,
+      modelIndex,
+      model
+    );
+    return;
+  }
+
+  if (geofs.version >= 3.0 && geofs.version <= 3.7) {
+    geofs.api.changeModelTexture(
+      model._model,
+      textureUrl,
+      modelIndex
+    );
+    return;
+  }
+
+  geofs.api.changeModelTexture(
+    model._model,
+    textureUrl,
+    {
+      index: modelIndex
+    }
+  );
+}
+
+/**
+ * 修改远程模型材质。
+ */
+function applyRemoteMaterial(model, livery, materialIndex) {
+  const mat = livery.materials?.[materialIndex];
+
+  if (!mat) {
+    throw new Error(`找不到材质配置：${materialIndex}`);
+  }
+
+  const valueKey = Object.keys(mat).find(
+    (key) => key !== 'name'
+  );
+
+  if (
+    !mat.name ||
+    !valueKey ||
+    !Array.isArray(mat[valueKey])
+  ) {
+    throw new Error(`材质配置无效：${materialIndex}`);
+  }
+
+  model._model
+    .getMaterial(mat.name)
+    .setValue(
+      valueKey,
+      new Cesium.Cartesian4(
+        ...mat[valueKey],
+        1.0
+      )
+    );
+}
+
+/**
+ * 给一个远程玩家应用对应机型的 OCA 涂装。
+ */
+async function applyRemoteLivery(
+  user,
+  airplane,
+  livery,
+  aircraftId
+) {
+  const mappings = getMultiplayerMappings(airplane);
+
+  if (!mappings.length) {
+    throw new Error(
+      `机型 ${aircraftId} 没有多人贴图映射`
+    );
+  }
+
+  const textures = normalizeTextureList(
+    livery,
+    airplane
+  );
+
+  const remoteModelTextures =
+    user.model?._model?._rendererResources?.textures || [];
+
+  for (const mapping of mappings) {
+    /*
+     * 普通图片贴图
+     */
+    if (mapping.textureIndex !== undefined) {
+      const textureIndex = Number(
+        mapping.textureIndex
+      );
+
+      const modelIndex = Number(
+        mapping.modelIndex
+      );
+
+      const textureUrl = textures[textureIndex];
+
+      if (!Number.isInteger(textureIndex)) {
+        throw new Error('textureIndex 无效');
+      }
+
+      if (!Number.isInteger(modelIndex)) {
+        throw new Error('modelIndex 无效');
+      }
+
+      if (typeof textureUrl !== 'string') {
+        throw new Error(
+          `texture[${textureIndex}] 不是图片地址`
+        );
+      }
+
+      const preparedTexture =
+        await prepareRemoteTexture(
+          textureUrl,
+          remoteModelTextures[modelIndex]
+        );
+
+      changeRemoteTexture(
+        user.model,
+        preparedTexture,
+        modelIndex
+      );
+
+      continue;
+    }
+
+    /*
+     * 材质颜色
+     */
+    if (mapping.material !== undefined) {
+      applyRemoteMaterial(
+        user.model,
+        livery,
+        Number(mapping.material)
+      );
+    }
+  }
+}
+
+/**
+ * 扫描所有附近玩家。
+ *
+ * 重点：
+ * 每个玩家都根据自己的 user.aircraft 查配置，
+ * 不使用你自己当前驾驶的机型。
+ */
+async function updateMultiplayer() {
+  if (multiplayerUpdateRunning) return;
+
+  multiplayerUpdateRunning = true;
+
+  try {
+    const visibleUsers =
+      window.multiplayer?.visibleUsers || {};
+
+    const entries = Object.entries(visibleUsers);
+
+    const visibleIds = new Set(
+      entries.map(([key, user]) =>
+        String(user?.id ?? key)
+      )
+    );
+
+    /*
+     * 删除已经离开视野的玩家缓存
+     */
+    for (const savedId of remoteLiveryState.keys()) {
+      if (!visibleIds.has(savedId)) {
+        remoteLiveryState.delete(savedId);
+      }
+    }
+
+    for (const [key, user] of entries) {
+      if (!user?.model) continue;
+
+      /*
+       * 这里使用的是远程玩家自己的机型。
+       *
+       * 例如：
+       * 你驾驶 B737，不影响读取朋友的 A350。
+       * 朋友驾驶 A350，也不影响读取你的 B737。
+       */
+      const remoteAircraftId = String(
+        user.aircraft ?? ''
+      );
+
+      const signal = parseOcaSignal(
+        user.currentLivery,
+        remoteAircraftId
+      );
+
+      if (!signal) continue;
+
+      /*
+       * 根据远程玩家的机型 ID，
+       * 从 alliance.json 中取得对应飞机配置。
+       */
+      const airplane =
+        alliance.aircrafts[signal.aircraftId];
+
+      if (!airplane) continue;
+
+      /*
+       * idx 只在该机型自己的 liveries 数组中查找。
+       */
+      const livery =
+        airplane.liveries?.[signal.idx];
+
+      if (!livery || livery.disabled) continue;
+
+      const userId = String(
+        user.id ?? key
+      );
+
+      const signature =
+        `${signal.aircraftId}|${signal.idx}`;
+
+      const previous =
+        remoteLiveryState.get(userId);
+
+      /*
+       * 同一个模型已经应用过同一个涂装，
+       * 不需要重复加载。
+       */
+      if (
+        previous?.signature === signature &&
+        previous?.model === user.model
+      ) {
+        continue;
+      }
+
+      try {
+        await applyRemoteLivery(
+          user,
+          airplane,
+          livery,
+          signal.aircraftId
+        );
+
+        remoteLiveryState.set(userId, {
+          signature,
+          model: user.model
+        });
+
+        log(
+          `已同步远程涂装：` +
+          `${airplane.name || signal.aircraftId} / ` +
+          `${livery.name}`
+        );
+      } catch (error) {
+        remoteLiveryState.delete(userId);
+
+        log(
+          `远程涂装同步失败：` +
+          `${error.message || error}`,
+          'warn'
+        );
+      }
+    }
+  } finally {
+    multiplayerUpdateRunning = false;
+  }
+}
 
   function listLiveries() {
     const list = document.getElementById('ocaliverylist');
@@ -124,12 +568,14 @@
 
     const fragment = document.createDocumentFragment();
 
-    liveries.forEach((livery, idx) => {
+    liveries.forEach((livery) => {
       if (query && !livery.name.toLowerCase().includes(query)) return;
+      const liveryIndex =
+        airplane.liveries.indexOF(livery);
 
       const item = createTag('li', {
         class: 'oca-livery-item',
-        'data-idx': String(idx),
+        'data-idx': String(liveryIndex),
       });
 
       appendNewChild(item, 'span', { class: 'oca-livery-name' }, livery.name);
@@ -139,7 +585,8 @@
 
       item.addEventListener('click', () => {
         applyLivery(livery, airplane);
-        log(`已应用涂装：${livery.name}`);
+        broadcastLivery(liveryIndex);
+        log(`已应用并广播涂装：${livery.name}`);
       });
 
       fragment.appendChild(item);
@@ -266,6 +713,14 @@
     bottomBar.insertBefore(generatePanelButtonHTML(), bottomBar.children[insertPos]);
 
     markSupportedAircraft();
+    setInterval(
+      updateMultiplayer,
+      MP_POLL_MS
+    );
+    setTimeout(
+      updareMultiplayer,
+      1500
+    );
 
     window.addEventListener('keyup', (e) => {
       if (e.target.classList.contains('geofs-stopKeyupPropagation')) {
@@ -280,10 +735,13 @@
   }
 
   window.OCALivery = {
+    version: VERSION,
     alliance,
     loadLivery,
     listLiveries,
     togglePanel,
+    broadcastLivery,
+    updateMultiplayer,
     log,
   };
 

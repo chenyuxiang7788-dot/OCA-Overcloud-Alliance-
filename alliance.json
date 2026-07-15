@@ -9,6 +9,16 @@
       "index": [2,3],
       "parts": [0,0],
       "labels": ["Specular shader","Texture"],
+      "mp":[
+        {
+          "textureIndex":0,
+          "modelIndex":2
+        },
+        { 
+          "textureIndex":0,
+          "modelIndex":2
+        }
+      ],
       "liveries": [
         {
           "texture": [
