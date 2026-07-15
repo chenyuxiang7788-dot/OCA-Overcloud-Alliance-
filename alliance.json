@@ -27,6 +27,15 @@
           "credits": "Aviation.Nuo",
           "name": "OH-OCN01 - 云极航空（普）",
           "disabled": false
+        },
+        {
+          "texture": [
+            "/models/aircraft/premium/a350/specular.jpg",
+            "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/A350-900（24）/B-0828.png"
+          ],
+          "credits": "Zhan Wu",
+          "name": "B-0828 - 中国云上航空（测试）",
+          "disabled": false
         }
       ],
       "name":"Airbus a350-900"
