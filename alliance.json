@@ -27,7 +27,7 @@
           ],
           "credits": "Aviation.Nuo",
           "name": "COA - 大白机",
-          "disabled": false
+          "disabled": true
         },
         {
           "texture": [
