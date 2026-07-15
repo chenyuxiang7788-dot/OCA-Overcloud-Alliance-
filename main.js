@@ -115,16 +115,8 @@ function broadcastLivery(liveryIndex) {
   if (!instance) return;
 
   instance.liveryId = {
-    url: ALLIANCE_JSON_URL,
-
-    // 广播发送者自己的机型 ID
-    aircraft: String(instance.id),
-
-    // 该机型 liveries 数组中的真实位置
-    idx: liveryIndex,
-
-    // OCA 多人协议版本
-    oca: 2
+  url: ALLIANCE_JSON_URL,
+  idx: liveryIndex
   };
 }
 
@@ -269,38 +261,39 @@ async function prepareRemoteTexture(url, textureMeta) {
 /**
  * 替换远程玩家飞机的纹理。
  */
-function changeRemoteTexture(model, textureUrl, modelIndex) {
-  if (!model?._model) {
-    throw new Error('远程飞机模型尚未加载');
-  }
-
-  if (geofs.version == 2.9) {
-    geofs.api.Model.prototype.changeTexture(
-      textureUrl,
-      modelIndex,
-      model
+async function changeRemoteTexture(
+  model,
+  textureUrl,
+  modelIndex
+) {
+  if (!model || typeof model.changeTexture !== 'function') {
+    throw new Error(
+      '远程飞机没有可用的 changeTexture 方法'
     );
-    return;
   }
 
-  if (geofs.version >= 3.0 && geofs.version <= 3.7) {
-    geofs.api.changeModelTexture(
-      model._model,
-      textureUrl,
-      modelIndex
+  const modelTextures =
+    model?._model?._rendererResources?.textures || [];
+
+  if (
+    !Number.isInteger(modelIndex) ||
+    !modelTextures[modelIndex]
+  ) {
+    throw new Error(
+      `远程纹理槽 ${modelIndex} 不存在，` +
+      `当前模型共有 ${modelTextures.length} 个纹理槽`
     );
-    return;
   }
 
-  geofs.api.changeModelTexture(
-    model._model,
-    textureUrl,
-    {
-      index: modelIndex
-    }
+  await Promise.resolve(
+    model.changeTexture(
+      textureUrl,
+      {
+        index: modelIndex
+      }
+    )
   );
 }
-
 /**
  * 修改远程模型材质。
  */
@@ -394,7 +387,7 @@ async function applyRemoteLivery(
           remoteModelTextures[modelIndex]
         );
 
-      changeRemoteTexture(
+      await changeRemoteTexture(
         user.model,
         preparedTexture,
         modelIndex
