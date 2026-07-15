@@ -571,7 +571,7 @@ async function updateMultiplayer() {
     liveries.forEach((livery) => {
       if (query && !livery.name.toLowerCase().includes(query)) return;
       const liveryIndex =
-        airplane.liveries.indexOF(livery);
+        airplane.liveries.indexOf(livery);
 
       const item = createTag('li', {
         class: 'oca-livery-item',
@@ -718,7 +718,7 @@ async function updateMultiplayer() {
       MP_POLL_MS
     );
     setTimeout(
-      updareMultiplayer,
+      updateMultiplayer,
       1500
     );
 
