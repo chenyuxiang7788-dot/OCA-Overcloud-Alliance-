@@ -11,12 +11,8 @@
       "labels": ["Specular shader","Texture"],
       "mp":[
         {
-          "textureIndex":0,
-          "modelIndex":2
-        },
-        { 
           "textureIndex":1,
-          "modelIndex":3
+          "modelIndex":0
         }
       ],
       "liveries": [
@@ -26,8 +22,8 @@
             "https://raw.githubusercontent.com/chenyuxiang7788-dot/OCA-Overcloud-Alliance-/main/livery/A350-900（24）/a350-900.png"
           ],
           "credits": "Aviation.Nuo",
-          "name": "COA - 大白机",
-          "disabled": true
+          "name": "OCA - 大白机",
+          "disabled": false
         },
         {
           "texture": [
