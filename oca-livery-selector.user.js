@@ -63,106 +63,139 @@
   loadOCA();
 })();
 
-// ===== OCA Voice：使用 Pushback 插件相同的顶部按钮方式 =====
 (function () {
     "use strict";
 
-    // 改成你的真实 Render 网站地址
+   
+   /**
+    *语音系统 
+    */
     const OCA_URL = "https://oca-voice-web.onrender.com";
+
+    const BUTTON_ID = "ocaVoiceButtonMain";
 
     let ocaVoiceWindow = null;
 
-    /*
-     * Pushback 插件会等待 GeoFS 的 ui 和 flight 加载完成，
-     * 然后把按钮直接 append 到 geofs-autopilot-bar。
-     */
-    const loadTimer = setInterval(function () {
-        try {
-            // 等待 GeoFS 完成加载
-            if (!window.ui || !window.flight) {
-                return;
-            }
+    function openOcaVoice() {
+        if (ocaVoiceWindow && !ocaVoiceWindow.closed) {
+            ocaVoiceWindow.focus();
+            return;
+        }
 
-            const autopilotBar =
-                document.getElementsByClassName("geofs-autopilot-bar")[0];
+        ocaVoiceWindow = window.open(
+            OCA_URL,
+            "ocaVoiceWindow",
+            [
+                "toolbar=no",
+                "location=no",
+                "directories=no",
+                "status=no",
+                "menubar=no",
+                "scrollbars=yes",
+                "resizable=yes",
+                "width=430",
+                "height=700"
+            ].join(",")
+        );
 
-            // 自动驾驶栏还没出现，继续等待
-            if (!autopilotBar) {
-                return;
-            }
-
-            // 防止重复创建
-            if (document.getElementById("ocaVoiceButtonMain")) {
-                clearInterval(loadTimer);
-                return;
-            }
-
-            // 创建与 Pushback 相同类型的按钮
-            const ocaButton = document.createElement("div");
-
-            // 使用 GeoFS 自带的顶部按钮样式
-            ocaButton.classList.add("control-pad");
-
-            ocaButton.id = "ocaVoiceButtonMain";
-            ocaButton.innerHTML = "OCA VOICE";
-            ocaButton.title = "打开 OCA Voice";
-
-            // 参考 Pushback 按钮的尺寸和布局
-            ocaButton.style.cssText = `
-                width: 100px;
-                height: 25px;
-                margin: 0px 10px;
-                border-radius: 15px;
-                outline: none;
-                cursor: pointer;
-                user-select: none;
-            `;
-
-            ocaButton.onclick = function () {
-                // 已经打开时，不重复创建窗口
-                if (ocaVoiceWindow && !ocaVoiceWindow.closed) {
-                    ocaVoiceWindow.focus();
-                    return;
-                }
-
-                ocaVoiceWindow = window.open(
-                    OCA_URL,
-                    "ocaVoiceWindow",
-                    [
-                        "toolbar=no",
-                        "location=no",
-                        "directories=no",
-                        "status=no",
-                        "menubar=no",
-                        "scrollbars=yes",
-                        "resizable=yes",
-                        "width=430",
-                        "height=700"
-                    ].join(",")
-                );
-
-                if (!ocaVoiceWindow) {
-                    alert(
-                        "OCA Voice 窗口被浏览器阻止了。" +
-                        "请允许 GeoFS 打开弹出式窗口。"
-                    );
-                }
-            };
-
-            /*
-             * 关键位置：
-             * 和 Pushback 插件一样，直接加入自动驾驶栏。
-             */
-            autopilotBar.append(ocaButton);
-
-            clearInterval(loadTimer);
-
-            console.log(
-                "[OCA Voice] 按钮已加入 GeoFS 自动驾驶栏"
+        if (!ocaVoiceWindow) {
+            alert(
+                "OCA Voice 窗口被浏览器阻止了。\n\n" +
+                "请允许 GeoFS 打开弹出式窗口，然后重新点击按钮。"
             );
+        }
+    }
+
+    function createOcaButton() {
+        const button = document.createElement("div");
+
+        button.id = BUTTON_ID;
+        button.classList.add("control-pad");
+        button.title = "打开 OCA Voice";
+        button.setAttribute("role", "button");
+        button.setAttribute("tabindex", "0");
+
+        button.style.cssText =
+            "width:90px;" +
+            "height:25px;" +
+            "margin:0px 10px;" +
+            "padding:0;" +
+            "border-radius:15px;" +
+            "outline:none;" +
+            "cursor:pointer;" +
+            "pointer-events:auto;" +
+            "user-select:none;" +
+            "box-sizing:border-box;";
+
+        button.innerHTML =
+            '<div style="' +
+                'width:100%;' +
+                'height:25px;' +
+                'line-height:27px;' +
+                'font-size:12px !important;' +
+                'font-family:Arial,sans-serif;' +
+                'font-weight:normal;' +
+                'pointer-events:none;' +
+                'color:#FFF !important;' +
+                'text-align:center;' +
+                'white-space:nowrap;' +
+                'opacity:1 !important;' +
+                'visibility:visible !important;' +
+                'text-shadow:0 1px 2px #000;' +
+                'box-sizing:border-box;' +
+            '">' +
+                'OCA VOICE' +
+            '</div>';
+
+        button.addEventListener("click", openOcaVoice);
+
+        button.addEventListener("keydown", function (event) {
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+                event.preventDefault();
+                openOcaVoice();
+            }
+        });
+
+        return button;
+    }
+
+    function installOcaButton() {
+        /*
+         * 已经存在时不重复添加。
+         */
+        if (document.getElementById(BUTTON_ID)) {
+            return true;
+        }
+
+        const autopilotBar =
+            document.getElementsByClassName(
+                "geofs-autopilot-bar"
+            )[0];
+
+        if (!autopilotBar) {
+            return false;
+        }
+
+        const button = createOcaButton();
+
+        autopilotBar.append(button);
+
+        console.log(
+            "[OCA Voice] 顶部按钮已成功添加"
+        );
+
+        return true;
+    }
+
+    setInterval(function () {
+        try {
+            installOcaButton();
         } catch (error) {
             console.error(
-                "[OCA Voice] 创建按钮失败：",
+                "[OCA Voice] 添加按钮失败：",
                 error
             );
         }
