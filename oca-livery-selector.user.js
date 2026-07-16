@@ -64,7 +64,7 @@
 })();
 
 (() => {
-  const OCA_URL = "https://你的项目地址.onrender.com";
+  const OCA_URL = "https://oca-voice-web.onrender.com";
 
   // 防止重复创建按钮
   if (document.getElementById("oca-voice-button")) return;
