@@ -62,3 +62,40 @@
 
   loadOCA();
 })();
+
+(() => {
+  const OCA_URL = "https://你的项目地址.onrender.com";
+
+  // 防止重复创建按钮
+  if (document.getElementById("oca-voice-button")) return;
+
+  const button = document.createElement("button");
+  button.id = "oca-voice-button";
+  button.textContent = "🎙 OCA Voice";
+
+  Object.assign(button.style, {
+    position: "fixed",
+    right: "18px",
+    bottom: "90px",
+    zIndex: "999999",
+    padding: "10px 14px",
+    border: "1px solid rgba(255,255,255,0.3)",
+    borderRadius: "10px",
+    background: "rgba(20,25,35,0.92)",
+    color: "white",
+    fontSize: "14px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.35)"
+  });
+
+  button.addEventListener("click", () => {
+    window.open(
+      OCA_URL,
+      "ocaVoiceWindow",
+      "width=430,height=700,resizable=yes,scrollbars=yes"
+    );
+  });
+
+  document.body.appendChild(button);
+})();
